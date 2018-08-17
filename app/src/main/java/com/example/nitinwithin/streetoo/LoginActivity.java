@@ -1,5 +1,6 @@
 package com.example.nitinwithin.streetoo;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
@@ -9,6 +10,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
 
@@ -22,6 +25,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -34,19 +38,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
-import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
-import com.microsoft.windowsazure.mobileservices.table.TableOperationCallback;
-import com.microsoft.windowsazure.mobileservices.table.TableQueryCallback;
 
 import java.net.MalformedURLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static android.Manifest.permission.READ_CONTACTS;
-import static com.example.nitinwithin.streetoo.R.string.azure_key;
-import static com.microsoft.windowsazure.mobileservices.table.query.QueryOperations.val;
+
 
 /**
  * A login screen that offers login via email/password.
@@ -60,7 +58,7 @@ public class LoginActivity extends AppCompatActivity {
 
     /**Azure variables*/
    MobileServiceClient mobileServiceClient;
-    USER item;
+
 
     /**
      * A dummy authentication store containing known user names and passwords.
@@ -80,16 +78,27 @@ public class LoginActivity extends AppCompatActivity {
     private View mProgressView;
     private View mLoginFormView;
     private MobileServiceTable<USER> mUserTable;
+    private String TAG;
+
+    private Boolean mLocationPermissionsGranted = false;
+    private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
+    private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        getLocationPermission();
+    }
+
+    private void initLogin()
+    {
         try {
             mobileServiceClient =new MobileServiceClient(
-                               "https://streetoo.azurewebsites.net",// Set up the login form.
-                               this);
+                    "https://streetoo.azurewebsites.net",// Set up the login form.
+                    this);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
@@ -123,6 +132,55 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
+    private void getLocationPermission(){
+        Log.d(TAG, "getLocationPermission: getting location permissions");
+        String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION};
+
+        if(ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            if(ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                    COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+                mLocationPermissionsGranted = true;
+                initLogin();
+
+            }else{
+                ActivityCompat.requestPermissions(this,
+                        permissions,
+                        LOCATION_PERMISSION_REQUEST_CODE);
+            }
+        }else{
+            ActivityCompat.requestPermissions(this,
+                    permissions,
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Log.d(TAG, "onRequestPermissionsResult: called.");
+        mLocationPermissionsGranted = false;
+
+        switch(requestCode){
+            case LOCATION_PERMISSION_REQUEST_CODE:{
+                if(grantResults.length > 0){
+                    for(int i = 0; i < grantResults.length; i++){
+                        if(grantResults[i] != PackageManager.PERMISSION_GRANTED){
+                            mLocationPermissionsGranted = false;
+                            Log.d(TAG, "onRequestPermissionsResult: permission failed");
+                            return;
+                        }
+                    }
+                    Log.d(TAG, "onRequestPermissionsResult: permission granted");
+                    mLocationPermissionsGranted = true;
+                    //initialize our Login
+                    initLogin();
+                }
+            }
+        }
+    }
+
+
     @SuppressLint("StaticFieldLeak")
     public void dbconnect(final String mail, final String pass)
     {
@@ -151,6 +209,7 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     });
                 } catch (final Exception e){
+                    Log.d(TAG, "doInBackground: ERROR: " + e.toString());
                     createAndShowDialogFromTask(e, "Error");
                 }
 
@@ -202,9 +261,6 @@ public class LoginActivity extends AppCompatActivity {
         builder.setTitle(title);
         builder.create().show();
     }
-
-
-
 
 
     private AsyncTask<Void, Void, Void> runAsyncTask(AsyncTask<Void, Void, Void> task) {

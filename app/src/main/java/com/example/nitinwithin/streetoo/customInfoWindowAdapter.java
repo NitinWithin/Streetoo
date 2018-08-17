@@ -34,19 +34,19 @@ public class customInfoWindowAdapter implements GoogleMap.InfoWindowAdapter{
 
         if(!snippet.equals(""))
         {
-            infotext.setText(title);
+            infotext.setText(snippet);
         }
     }
 
     @Override
     public View getInfoWindow(Marker marker) {
         renderWindowtext(marker,mWindow);
-        return null;
+        return mWindow;
     }
 
     @Override
     public View getInfoContents(Marker marker) {
         renderWindowtext(marker,mWindow);
-        return null;
+        return mWindow;
     }
 }
