@@ -5,6 +5,8 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -19,6 +21,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
@@ -34,8 +37,13 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.places.AutocompletePrediction;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBuffer;
@@ -47,6 +55,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -211,6 +220,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     if(task.isSuccessful()){
                         Log.d(TAG, "onComplete: found location!");
                         Location currentLocation = (Location) task.getResult();
+
                         moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
                                     DEFAULT_ZOOM,
                                     "My Location");
@@ -224,6 +234,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }catch (SecurityException e){
             Log.e(TAG, "getDeviceLocation: SecurityException: " + e.getMessage() );
         }
+
     }
 
     private void moveCamera(LatLng latLng, float zoom, String title){
@@ -344,7 +355,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     };
 
 
-    /** CUSTOM VENDOR MARKERS*/
+    /******************* CUSTOM VENDOR MARKERS ************************/
     MobileServiceClient mobileServiceClient;
     private MobileServiceTable<Live_Location> mLiveLocationTable;
 
@@ -395,14 +406,27 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void placeCustomMarkers(List<Live_Location> items) {
 
+
         for(Live_Location marker : items)
         {
             MarkerOptions options = new MarkerOptions()
                     .position(new LatLng(Double.valueOf(Float.valueOf(marker.getLatitude()).toString()),
                             Double.valueOf(Float.valueOf(marker.getLongitude()).toString())))
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker));
-            mMap.addMarker(options);
+            Marker customMarker = mMap.addMarker(options);
+            customMarker.setTag(marker.getVendor_id());
+
         }
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                String vendor_id = (String) marker.getTag();
+                Toast.makeText(MapsActivity.this,vendor_id,Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(MapsActivity.this,VendorInfoActivity.class);
+                startActivity(intent);
+                return true;
+            }
+        });
     }
 
 
@@ -411,6 +435,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .field("status").eq(val(true))
                 .execute().get();
     }
+
+
+
 
     private AsyncTask<Void, Void, Void> runAsyncTask(AsyncTask<Void, Void, Void> task) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {

@@ -35,25 +35,29 @@
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps">
             <intent-filter>
-                <action android:name="com.example.nitinwithin.streetoo"/>
+                <action android:name="com.example.nitinwithin.streetoo" />
 
                 <category android:name="android.intent.category.DEFAULT" />
-               <!-- <action android:name="android.intent.action.MAIN"/>
+                <!--
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />-->
+                <category android:name="android.intent.category.LAUNCHER" />
+                -->
             </intent-filter>
         </activity>
-
         <activity
             android:name=".LoginActivity"
             android:label="@string/LoginTitle">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity
+            android:name=".VendorInfoActivity"
+            android:label="@string/title_activity_vendor_info"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

@@ -116,13 +116,14 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        final Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        final Button mEmailSignInButton =  findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(!mEmailView.getText().toString().equals(""))
                 {
-                    dbconnect(mEmailView.getText().toString(),mPasswordView.getText().toString());
+                    validateSuccess();
+                    //dbconnect(mEmailView.getText().toString(),mPasswordView.getText().toString());
                 }
             }
         });

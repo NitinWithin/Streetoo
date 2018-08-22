@@ -30,6 +30,15 @@
             android:textSize="14sp"
             android:textColor="#000"
             />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/infowindowbutton"
+            android:text="more"
+            android:ellipsize="end"
+            android:textSize="14sp"
+            android:layout_gravity="bottom"/>
     </LinearLayout>
 
 
