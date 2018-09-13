@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -27,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.nitinwithin.streetoo.Tables.Live_Location;
+import com.example.nitinwithin.streetoo.Tables.VENDOR;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -41,6 +43,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -55,6 +58,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import static com.microsoft.windowsazure.mobileservices.table.query.QueryOperations.val;
@@ -92,8 +96,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         init();
 
     }
-    
 
+    BitmapDescriptor returnvalue;
     private static final String TAG = "MapsActivity";
 
 
@@ -347,6 +351,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     /******************* CUSTOM VENDOR MARKERS ************************/
     MobileServiceClient mobileServiceClient;
     private MobileServiceTable<Live_Location> mLiveLocationTable;
+    private MobileServiceTable<VENDOR> mLiveVendorTable;
 
     @SuppressLint("StaticFieldLeak")
     private void fetchLiveVendors() {
@@ -401,10 +406,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             MarkerOptions options = new MarkerOptions()
                     .position(new LatLng(Double.valueOf(Float.valueOf(marker.getLatitude()).toString()),
-                            Double.valueOf(Float.valueOf(marker.getLongitude()).toString())))
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker));
+                            Double.valueOf(Float.valueOf(marker.getLongitude()).toString())));
+
+
             Marker customMarker = mMap.addMarker(options);
             customMarker.setTag(marker.getVendor_id());
+            CuisineMarker(marker.getVendor_id(), customMarker);
 
         }
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
@@ -420,10 +427,81 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
+    @SuppressLint("StaticFieldLeak")
+    private void CuisineMarker(final String vendor_id, final Marker marker123)
+    {
+
+        try {
+        mobileServiceClient =new MobileServiceClient(
+                "https://streetoo.azurewebsites.net",// Set up the login form.
+                this);
+    } catch (MalformedURLException e) {
+        e.printStackTrace();
+    }
+        mLiveVendorTable = mobileServiceClient.getTable(VENDOR.class);
+        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
+            @Override
+            protected Void doInBackground(Void... params) {
+
+                try {
+                    final List<VENDOR> results1 = runQuery1(vendor_id);
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(results1 != null)
+                            {
+                                for(VENDOR item : results1)
+                                {
+
+                                    if(item.getVendorCuisine().equalsIgnoreCase("chat"))
+                                    {
+
+                                        marker123.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_chat));
+                                    }
+                                    else if(item.getVendorCuisine().equalsIgnoreCase("dosa"))
+                                    {
+                                        marker123.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_dosa));
+                                    }
+                                    else if(item.getVendorCuisine().equalsIgnoreCase("southindian"))
+                                    {
+
+                                        marker123.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_southindian));
+                                    }
+                                    else
+                                    {
+                                        marker123.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker));
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                Toast.makeText(MapsActivity.this, "FAILED",Toast.LENGTH_LONG ).show();
+                            }
+                        }
+                    });
+                } catch (final Exception e){
+                    Log.d(TAG, "doInBackground: ERROR: " + e.toString());
+                }
+
+                return null;
+            }
+
+        };
+
+        runAsyncTask(task);
+    }
+
 
     private List<Live_Location> runQuery() throws ExecutionException, InterruptedException {
         return mLiveLocationTable.where()
                 .field("status").eq(val(true))
+                .execute().get();
+    }
+
+    private List<VENDOR> runQuery1(String id) throws ExecutionException, InterruptedException {
+        return mLiveVendorTable.where()
+                .field("id").eq(val(id))
                 .execute().get();
     }
 
