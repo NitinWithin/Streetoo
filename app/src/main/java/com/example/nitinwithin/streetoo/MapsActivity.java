@@ -1,12 +1,9 @@
 package com.example.nitinwithin.streetoo;
 
-import android.*;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -17,33 +14,25 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.nitinwithin.streetoo.Tables.Live_Location;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResult;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.places.AutocompletePrediction;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBuffer;
@@ -374,7 +363,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             protected Void doInBackground(Void... params) {
 
                 try {
-                    final List<Live_Location> results = queryLiveVendor();
+                    final List<Live_Location> results = runQuery();
 
                     //Offline Sync
                     //final List<ToDoItem> results = refreshItemsFromMobileServiceTableSyncTable();
@@ -409,6 +398,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         for(Live_Location marker : items)
         {
+
             MarkerOptions options = new MarkerOptions()
                     .position(new LatLng(Double.valueOf(Float.valueOf(marker.getLatitude()).toString()),
                             Double.valueOf(Float.valueOf(marker.getLongitude()).toString())))
@@ -423,6 +413,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 String vendor_id = (String) marker.getTag();
                 Toast.makeText(MapsActivity.this,vendor_id,Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(MapsActivity.this,VendorInfoActivity.class);
+                intent.putExtra("vendorId", vendor_id);
                 startActivity(intent);
                 return true;
             }
@@ -430,7 +421,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
-    private List<Live_Location> queryLiveVendor() throws ExecutionException, InterruptedException {
+    private List<Live_Location> runQuery() throws ExecutionException, InterruptedException {
         return mLiveLocationTable.where()
                 .field("status").eq(val(true))
                 .execute().get();

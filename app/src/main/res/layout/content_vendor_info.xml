@@ -8,10 +8,18 @@
     tools:context=".VendorInfoActivity"
     tools:showIn="@layout/activity_vendor_info">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
-        android:text="@string/large_text" />
+        android:orientation="vertical"
+        android:id="@+id/relLayoutVendorInfo">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TextView" />
+    </RelativeLayout>
+
 
 </android.support.v4.widget.NestedScrollView>

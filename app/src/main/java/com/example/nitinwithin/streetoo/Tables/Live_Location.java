@@ -1,4 +1,4 @@
-package com.example.nitinwithin.streetoo;
+package com.example.nitinwithin.streetoo.Tables;
 
 public class Live_Location {
 

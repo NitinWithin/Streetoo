@@ -1,42 +1,31 @@
 package com.example.nitinwithin.streetoo;
 
 import android.Manifest;
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
+
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.app.LoaderManager.LoaderCallbacks;
-
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.nitinwithin.streetoo.Tables.USER;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
 
@@ -191,7 +180,7 @@ public class LoginActivity extends AppCompatActivity {
             protected Void doInBackground(Void... params) {
 
                 try {
-                    final List<USER> results = validateUser(mail, pass);
+                    final List<USER> results = runQuery(mail, pass);
 
                     //Offline Sync
                     //final List<ToDoItem> results = refreshItemsFromMobileServiceTableSyncTable();
@@ -228,7 +217,7 @@ public class LoginActivity extends AppCompatActivity {
         finish();
     }
 
-    private List<USER> validateUser(String mail, String pass) throws ExecutionException, InterruptedException{
+    private List<USER> runQuery(String mail, String pass) throws ExecutionException, InterruptedException{
 
         return mUserTable.where()
                 .field("user_mail").eq(mail)
