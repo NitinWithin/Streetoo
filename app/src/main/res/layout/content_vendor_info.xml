@@ -6,20 +6,74 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".VendorInfoActivity"
-    tools:showIn="@layout/activity_vendor_info">
+    tools:showIn="@layout/activity_vendor_info"
+    android:padding="10dp">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
         android:id="@+id/relLayoutVendorInfo">
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/textViewStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Status" />
+
+            <TextView
+                android:id="@+id/textViewRating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:text="Rating" />
+
+        </RelativeLayout>
+
         <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
+            android:id="@+id/textViewCuisine"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="TextView" />
-    </RelativeLayout>
+            android:layout_marginTop="10dp"
+            android:text="Cuisine" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray" />
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="5dp">
+
+            <TextView
+                android:id="@+id/OrderDetails"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="50dp"
+                android:layout_gravity="center_vertical"
+                android:text="@string/FoodDeliveryPhrase"
+                android:textSize="20dp"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/button2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/order_now" />
+        </TableRow>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray" />
+
+    </LinearLayout>
 
 
 </android.support.v4.widget.NestedScrollView>

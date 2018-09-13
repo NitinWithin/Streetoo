@@ -112,5 +112,7 @@
     </string>
     <string name="action_settings">Settings</string>
     <string name="textview">TextView</string>
+    <string name="FoodDeliveryPhrase">Getting Food Delivered?</string>
+    <string name="order_now">ORDER NOW</string>
 
 </resources>
