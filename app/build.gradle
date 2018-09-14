@@ -4,7 +4,8 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.example.nitinwithin.streetoo"
-        minSdkVersion 18
+        minSdkVersion 23
+
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"

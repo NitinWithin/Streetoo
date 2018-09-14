@@ -3,5 +3,7 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="colorDeliveryButton">#85f479</color>
+    <color name="colorDeliveryButton">#42a138</color>
+    <color name="colorVendorStatusOpen">#54e644</color>
+    <color name="colorVendorStatusClosed">#d42a1a</color>
 </resources>

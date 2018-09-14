@@ -1,6 +1,6 @@
 package com.example.nitinwithin.streetoo.Tables;
 
-import java.sql.ResultSet;
+
 
 public class VENDOR {
 

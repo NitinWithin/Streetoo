@@ -46,8 +46,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".LoginActivity"
-            android:label="@string/LoginTitle">
+            android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -56,8 +55,19 @@
         </activity>
         <activity
             android:name=".VendorInfoActivity"
-            android:label="@string/title_activity_vendor_info"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="com.example.nitinwithin.streetoo" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <!--
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER" />
+                -->
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

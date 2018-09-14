@@ -94,12 +94,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
 
         init();
-
     }
 
-    BitmapDescriptor returnvalue;
     private static final String TAG = "MapsActivity";
-
 
     private static final float DEFAULT_ZOOM = 15f;
     private static final LatLngBounds LAT_LNG_BOUNDS = new LatLngBounds(
@@ -357,7 +354,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void fetchLiveVendors() {
         try {
             mobileServiceClient =new MobileServiceClient(
-                    "https://streetoo.azurewebsites.net",// Set up the login form.
+                    getString(R.string.azure_url),// Set up the login form.
                     this);
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -366,7 +363,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
          AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
             @Override
             protected Void doInBackground(Void... params) {
-
                 try {
                     final List<Live_Location> results = runQuery();
 
@@ -390,20 +386,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     Log.d(TAG, "doInBackground: ERROR: " + e.toString());
 //                    createAndShowDialogFromTask(e, "Error");
                 }
-
                 return null;
             }
         };
-
-        runAsyncTask(task);
+         runAsyncTask(task);
     }
 
     private void placeCustomMarkers(List<Live_Location> items) {
 
-
         for(Live_Location marker : items)
         {
-
             MarkerOptions options = new MarkerOptions()
                     .position(new LatLng(Double.valueOf(Float.valueOf(marker.getLatitude()).toString()),
                             Double.valueOf(Float.valueOf(marker.getLongitude()).toString())));
@@ -411,6 +403,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             Marker customMarker = mMap.addMarker(options);
             customMarker.setTag(marker.getVendor_id());
+
             CuisineMarker(marker.getVendor_id(), customMarker);
 
         }
@@ -418,7 +411,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public boolean onMarkerClick(Marker marker) {
                 String vendor_id = (String) marker.getTag();
-                Toast.makeText(MapsActivity.this,vendor_id,Toast.LENGTH_LONG).show();
+                //Toast.makeText(MapsActivity.this,vendor_id,Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(MapsActivity.this,VendorInfoActivity.class);
                 intent.putExtra("vendorId", vendor_id);
                 startActivity(intent);
@@ -430,10 +423,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @SuppressLint("StaticFieldLeak")
     private void CuisineMarker(final String vendor_id, final Marker marker123)
     {
-
         try {
         mobileServiceClient =new MobileServiceClient(
-                "https://streetoo.azurewebsites.net",// Set up the login form.
+                getString(R.string.azure_url),// Set up the login form.
                 this);
     } catch (MalformedURLException e) {
         e.printStackTrace();
@@ -453,7 +445,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             {
                                 for(VENDOR item : results1)
                                 {
-
                                     if(item.getVendorCuisine().equalsIgnoreCase("chat"))
                                     {
 
@@ -467,6 +458,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     {
 
                                         marker123.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_southindian));
+                                    }
+                                    else if(item.getVendorCuisine().equalsIgnoreCase("Ice Cream"))
+                                    {
+                                        Toast.makeText(MapsActivity.this, "ICE CREAM", Toast.LENGTH_SHORT).show();
                                     }
                                     else
                                     {
@@ -483,7 +478,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 } catch (final Exception e){
                     Log.d(TAG, "doInBackground: ERROR: " + e.toString());
                 }
-
                 return null;
             }
 
@@ -491,7 +485,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         runAsyncTask(task);
     }
-
 
     private List<Live_Location> runQuery() throws ExecutionException, InterruptedException {
         return mLiveLocationTable.where()
@@ -504,9 +497,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .field("id").eq(val(id))
                 .execute().get();
     }
-
-
-
 
     private AsyncTask<Void, Void, Void> runAsyncTask(AsyncTask<Void, Void, Void> task) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
