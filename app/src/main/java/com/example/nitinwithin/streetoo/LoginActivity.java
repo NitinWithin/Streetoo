@@ -154,8 +154,8 @@ public class LoginActivity extends AppCompatActivity implements Serializable{
         {
             if(ContextCompat.checkSelfPermission(this.getApplicationContext(),STORAGE_ACCESS_READ) == PackageManager.PERMISSION_GRANTED)
             {
-                //readUserInfo();
-                initLogin();
+                readUserInfo();
+                //initLogin();
             }
             else
             {

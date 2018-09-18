@@ -3,6 +3,7 @@ package com.example.nitinwithin.streetoo;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -17,13 +18,18 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -106,6 +112,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     //widgets
     private AutoCompleteTextView mSearchText;
     private ImageView mGps;
+    private ImageView mMarkerLegend;
 
     //vars
 
@@ -122,6 +129,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_maps);
         mSearchText =  findViewById(R.id.textinput);
         mGps =  findViewById(R.id.ic_gps);
+        mMarkerLegend = findViewById(R.id.markerLegend);
 
         //getLocationPermission();
         initMap();
@@ -169,7 +177,35 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        mMarkerLegend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                initiatePopupWindow(v);
+            }
+        });
+
         hideSoftKeyboard();
+    }
+    private void initiatePopupWindow(View v) {
+        try {
+            //We need to get the instance of the LayoutInflater, use the context of this activity
+            LayoutInflater inflater = (LayoutInflater) MapsActivity.this
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            //Inflate the view from a predefined XML layout
+            View layout = inflater.inflate(R.layout.custom_marker_legend,
+                    null);
+            // create a 300px width and 470px height PopupWindow
+            PopupWindow pw = new PopupWindow(layout, 300, 470, true);
+            // display the popup in the center
+            pw.showAtLocation(v, Gravity.CENTER, 0, 0);
+
+            //TextView mResultText = (TextView) layout.findViewById(R.id.server_status_text);
+            //Button cancelButton = (Button) layout.findViewById(R.id.end_data_send_button);
+            //cancelButton.setOnClickListener(cancel_button_click_listener);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void geoLocate(){
@@ -462,7 +498,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     }
                                     else if(item.getVendorCuisine().equalsIgnoreCase("Ice Cream"))
                                     {
-                                        Toast.makeText(MapsActivity.this, "ICE CREAM", Toast.LENGTH_SHORT).show();
+                                        //Toast.makeText(MapsActivity.this, "ICE CREAM", Toast.LENGTH_SHORT).show();
+                                        marker123.setIcon((BitmapDescriptorFactory.fromResource(R.mipmap.ic_marker_icecream)));
                                     }
                                     else
                                     {
