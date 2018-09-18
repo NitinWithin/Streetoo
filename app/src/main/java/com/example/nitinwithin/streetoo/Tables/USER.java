@@ -1,7 +1,9 @@
 package com.example.nitinwithin.streetoo.Tables;
 
 
-public class USER
+import java.io.Serializable;
+
+public class USER implements Serializable
 {
     public USER()
     {

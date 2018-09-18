@@ -415,7 +415,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Intent intent = new Intent(MapsActivity.this,VendorInfoActivity.class);
                 intent.putExtra("vendorId", vendor_id);
                 startActivity(intent);
-                return true;
+                finish();
+                return false;
             }
         });
     }

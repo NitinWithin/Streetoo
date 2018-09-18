@@ -29,6 +29,12 @@ import com.example.nitinwithin.streetoo.Tables.USER;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -38,7 +44,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements Serializable{
 
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -64,44 +70,42 @@ public class LoginActivity extends AppCompatActivity {
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
-    private View mProgressView;
-    private View mLoginFormView;
     private MobileServiceTable<USER> mUserTable;
     private String TAG;
+    private String filePath;
+    private String pathToAppFolder;
 
     private Boolean mLocationPermissionsGranted = false;
     private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;
     private static final String COURSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;
+    private static final int PERMISSION_REQUEST_CODE = 1234;
+    private static final String STORAGE_ACCESS_WRITE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+    private static final String STORAGE_ACCESS_READ = Manifest.permission.READ_EXTERNAL_STORAGE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+
+        pathToAppFolder = getExternalFilesDir(null).getAbsolutePath();
+
+        filePath = pathToAppFolder + "/user.txt";
+
         getLocationPermission();
+        //getStoragePermission();
     }
 
     private void initLogin()
     {
-        try {
-            mobileServiceClient =new MobileServiceClient(
-                    "https://streetoo.azurewebsites.net",// Set up the login form.
-                    this);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
+
         mEmailView = findViewById(R.id.email);
 
-        mPasswordView = (EditText) findViewById(R.id.password);
+        mPasswordView =  findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-
-                    return true;
-                }
-                return false;
+                return id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL;
             }
         });
 
@@ -111,14 +115,11 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(!mEmailView.getText().toString().equals(""))
                 {
-                    validateSuccess();
-                    //dbconnect(mEmailView.getText().toString(),mPasswordView.getText().toString());
+                    //validateSuccess(results);
+                    dbconnect(mEmailView.getText().toString(),mPasswordView.getText().toString());
                 }
             }
         });
-
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
     }
 
 
@@ -132,17 +133,38 @@ public class LoginActivity extends AppCompatActivity {
             if(ContextCompat.checkSelfPermission(this.getApplicationContext(),
                     COURSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
                 mLocationPermissionsGranted = true;
-                initLogin();
+                getStoragePermission();
 
             }else{
                 ActivityCompat.requestPermissions(this,
                         permissions,
-                        LOCATION_PERMISSION_REQUEST_CODE);
+                        PERMISSION_REQUEST_CODE);
             }
         }else{
             ActivityCompat.requestPermissions(this,
                     permissions,
-                    LOCATION_PERMISSION_REQUEST_CODE);
+                    PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    private void getStoragePermission() {
+        String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE};
+        if(ContextCompat.checkSelfPermission(this.getApplicationContext(),STORAGE_ACCESS_WRITE) == PackageManager.PERMISSION_GRANTED)
+        {
+            if(ContextCompat.checkSelfPermission(this.getApplicationContext(),STORAGE_ACCESS_READ) == PackageManager.PERMISSION_GRANTED)
+            {
+                readUserInfo();
+            }
+            else
+            {
+                ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST_CODE);
+            }
+        }
+        else {
+            ActivityCompat.requestPermissions(this,
+                    permissions,
+                    PERMISSION_REQUEST_CODE);
         }
     }
 
@@ -152,7 +174,7 @@ public class LoginActivity extends AppCompatActivity {
         mLocationPermissionsGranted = false;
 
         switch(requestCode){
-            case LOCATION_PERMISSION_REQUEST_CODE:{
+            case PERMISSION_REQUEST_CODE:{
                 if(grantResults.length > 0){
                     for(int i = 0; i < grantResults.length; i++){
                         if(grantResults[i] != PackageManager.PERMISSION_GRANTED){
@@ -174,6 +196,13 @@ public class LoginActivity extends AppCompatActivity {
     @SuppressLint("StaticFieldLeak")
     public void dbconnect(final String mail, final String pass)
     {
+        try {
+            mobileServiceClient =new MobileServiceClient(
+                    "https://streetoo.azurewebsites.net",// Set up the login form.
+                    this);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
         mUserTable = mobileServiceClient.getTable(USER.class);
           AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
             @Override
@@ -182,15 +211,13 @@ public class LoginActivity extends AppCompatActivity {
                 try {
                     final List<USER> results = runQuery(mail, pass);
 
-                    //Offline Sync
-                    //final List<ToDoItem> results = refreshItemsFromMobileServiceTableSyncTable();
-
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             if(results != null)
                             {
-                                validateSuccess();
+                                validateSuccess(results);
+
                             }
                             else
                             {
@@ -210,12 +237,61 @@ public class LoginActivity extends AppCompatActivity {
         runAsyncTask(task);
     }
 
-    private void validateSuccess() {
-        Toast.makeText(LoginActivity.this,"SUCCESS",Toast.LENGTH_LONG).show();
+    private void validateSuccess(List<USER> results) {
+        writeUserInfo(results);
+        //createAndShowDialog("Welcome "+results.get(0).getUser_name(),"Login Success");
+//        Toast.makeText(LoginActivity.this,"SUCCESS",Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
         startActivity(intent);
         finish();
     }
+
+
+
+    private void writeUserInfo(List<USER> results) {
+        try {
+            FileOutputStream userFile = new FileOutputStream(String.valueOf(filePath));
+            ObjectOutputStream objWriter = new ObjectOutputStream(userFile);
+            objWriter.writeObject(results);
+            objWriter.flush();
+            objWriter.close();
+            userFile.close();
+
+            } catch (Exception e) {
+            Log.d(TAG, "writeUserInfo: " + e.toString());
+            e.printStackTrace();
+        }
+    }
+
+    private void readUserInfo()
+    {
+        try
+        {
+            FileInputStream userFileRead = new FileInputStream(String.valueOf(filePath));
+            Log.d(TAG, "writeUserInfo: FILE FOUND");
+            ObjectInputStream objReader = new ObjectInputStream(userFileRead);
+            List<USER> userObj = (List<USER>) objReader.readObject();
+
+            if(!(userObj == null))
+            {
+               dbconnect(userObj.get(0).getUser_mail(),userObj.get(0).getUser_password());
+               Toast.makeText(LoginActivity.this,"Welcome back",Toast.LENGTH_SHORT).show();
+            }
+            else
+            {
+                initLogin();
+            }
+            Toast.makeText(LoginActivity.this, userObj.get(0).getUser_name(),Toast.LENGTH_LONG).show();
+
+        }
+        catch (Exception e)
+        {
+            Log.d(TAG, "readUserInfo: " + e.getMessage());
+        }
+
+    }
+
+
 
     private List<USER> runQuery(String mail, String pass) throws ExecutionException, InterruptedException{
 
@@ -225,9 +301,6 @@ public class LoginActivity extends AppCompatActivity {
                 .field("user_password").eq(pass)
                 .execute().get();
     }
-
-
-
 
     private void createAndShowDialogFromTask(final Exception exception, String title) {
         runOnUiThread(new Runnable() {
@@ -244,6 +317,7 @@ public class LoginActivity extends AppCompatActivity {
         }
         createAndShowDialog(ex.getMessage(), title);
     }
+
     private void createAndShowDialog(final String message, final String title) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
@@ -251,7 +325,6 @@ public class LoginActivity extends AppCompatActivity {
         builder.setTitle(title);
         builder.create().show();
     }
-
 
     private AsyncTask<Void, Void, Void> runAsyncTask(AsyncTask<Void, Void, Void> task) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -261,4 +334,3 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 }
-
