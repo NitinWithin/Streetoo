@@ -56,6 +56,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
@@ -199,10 +200,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             // display the popup in the center
             pw.showAtLocation(v, Gravity.CENTER, 0, 0);
 
-            //TextView mResultText = (TextView) layout.findViewById(R.id.server_status_text);
-            //Button cancelButton = (Button) layout.findViewById(R.id.end_data_send_button);
-            //cancelButton.setOnClickListener(cancel_button_click_listener);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -246,17 +243,23 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     if(task.isSuccessful()){
                         Log.d(TAG, "onComplete: found location!");
                         Location currentLocation = (Location) task.getResult();
+                        Double temp = new Double(currentLocation.getLatitude());
+                        Double temp2 = new Double(currentLocation.getLongitude());
+                        if (temp == null || temp2 == null)
+                        {
 
-                        moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
+                        }
+                        else {
+                            moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
                                     DEFAULT_ZOOM,
                                     "My Location");
+                        }
                         }else{
                             Log.d(TAG, "onComplete: current location is null");
                             Toast.makeText(MapsActivity.this, "unable to get current location", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
-
         }catch (SecurityException e){
             Log.e(TAG, "getDeviceLocation: SecurityException: " + e.getMessage() );
         }
@@ -452,7 +455,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 intent.putExtra("vendorId", vendor_id);
                 startActivity(intent);
                 finish();
-                return false;
+                return true;
             }
         });
     }

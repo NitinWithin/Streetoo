@@ -3,6 +3,7 @@ package com.example.nitinwithin.streetoo;
 import android.Manifest;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -93,7 +94,7 @@ public class LoginActivity extends AppCompatActivity implements Serializable{
         filePath = pathToAppFolder + "/user.txt";
 
         getLocationPermission();
-        //getStoragePermission();
+
     }
 
     private void initLogin()
@@ -139,11 +140,13 @@ public class LoginActivity extends AppCompatActivity implements Serializable{
                 ActivityCompat.requestPermissions(this,
                         permissions,
                         PERMISSION_REQUEST_CODE);
+                getStoragePermission();
             }
         }else{
             ActivityCompat.requestPermissions(this,
                     permissions,
                     PERMISSION_REQUEST_CODE);
+            getStoragePermission();
         }
     }
 
@@ -248,7 +251,6 @@ public class LoginActivity extends AppCompatActivity implements Serializable{
     }
 
 
-
     private void writeUserInfo(List<USER> results) {
         try {
             FileOutputStream userFile = new FileOutputStream(String.valueOf(filePath));
@@ -292,8 +294,6 @@ public class LoginActivity extends AppCompatActivity implements Serializable{
 
     }
 
-
-
     private List<USER> runQuery(String mail, String pass) throws ExecutionException, InterruptedException{
 
         return mUserTable.where()
@@ -334,4 +334,6 @@ public class LoginActivity extends AppCompatActivity implements Serializable{
             return task.execute();
         }
     }
+
+
 }

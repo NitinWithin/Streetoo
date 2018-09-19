@@ -19,7 +19,16 @@ public class VENDOR {
     private String vendorOwner;
     @com.google.gson.annotations.SerializedName("vendorCuisine")
     private String vendorCuisine;
+    @com.google.gson.annotations.SerializedName("avgRating")
+    private float vendorAvgRating;
 
+    public float getVendorAvgRating() {
+        return vendorAvgRating;
+    }
+
+    public void setVendorAvgRating(float vendorAvgRating) {
+        this.vendorAvgRating = vendorAvgRating;
+    }
 
     public String getVendorOwner() {
         return vendorOwner;

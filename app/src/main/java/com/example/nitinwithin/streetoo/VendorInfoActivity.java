@@ -1,6 +1,7 @@
 package com.example.nitinwithin.streetoo;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -15,6 +16,7 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.nitinwithin.streetoo.Tables.RATING_AND_REVIEW;
 import com.example.nitinwithin.streetoo.Tables.VENDOR;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
@@ -29,13 +31,14 @@ public class VendorInfoActivity extends AppCompatActivity {
 
     String vendorinfo;
     private MobileServiceTable<VENDOR> mVendorTable;
-    MobileServiceClient mobileServiceClient;
+    private MobileServiceTable<RATING_AND_REVIEW> mRatingReviewTable;
+    private MobileServiceClient mobileServiceClient;
 
     private String TAG = "vendorInfoActivity";
 
     /**UI COMPONENT DECLARATIONS*/
-    private TextView statusTextView, ratingTextView, cuisineTextView, rateUsTextView;
-    private TextView vendorOwnerTextView, vendorContactTextView;
+    private TextView statusTextView, ratingTextView, cuisineTextView, rateUsTextView, avgCost;
+    private TextView vendorOwnerTextView, vendorContactTextView, vendorDescriptionView;
     private RatingBar vendorRatingbar;
     private Button OnlineOrderButton;
     private Toolbar toolbar;
@@ -43,16 +46,17 @@ public class VendorInfoActivity extends AppCompatActivity {
     CollapsingToolbarLayout toolbarLayout;
 
 
+    @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vendor_info);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
         Intent intent = getIntent();
         vendorinfo = intent.getStringExtra("vendorId");
-        //Toast.makeText(VendorInfoActivity.this,"New Activity: " + vendorinfo, Toast.LENGTH_LONG).show();
+        Toast.makeText(VendorInfoActivity.this,"New Activity: " + vendorinfo, Toast.LENGTH_LONG).show();
 
         statusTextView = findViewById(R.id.textViewStatus);
         ratingTextView = findViewById(R.id.textViewRating);
@@ -63,9 +67,19 @@ public class VendorInfoActivity extends AppCompatActivity {
         vendorOwnerTextView = findViewById(R.id.OwnerNametextView);
         vendorContactTextView = findViewById(R.id.OwnerContacttextView);
         rateUsTextView = findViewById(R.id.RatingtextView);
+        vendorDescriptionView = findViewById(R.id.vendorDescriptionView);
+        avgCost = findViewById(R.id.avgView);
 
         fetchVendorInfo();
         ratingBarChange();
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(VendorInfoActivity.this, MapsActivity.class);
+        startActivity(intent);
+        finish();
+        // your code.
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -94,6 +108,7 @@ public class VendorInfoActivity extends AppCompatActivity {
                             {
                                 for(VENDOR item : results)
                                 {
+                                    Log.d(TAG, "run: RECORD FOUND : " + item.getVendorName());
                                     statusTextView.setText("Open");
                                     statusTextView.setTextColor(getColor(R.color.colorVendorStatusOpen));
                                     cuisineTextView.setText("Cuisine: " + item.getVendorCuisine());
@@ -101,6 +116,9 @@ public class VendorInfoActivity extends AppCompatActivity {
                                     toolbarLayout.setTitle(item.getVendorName());
                                     vendorContactTextView.setText("Mobile: " + item.getVendorContact());
                                     vendorOwnerTextView.setText("Owner Name: " + item.getVendorOwner());
+                                    vendorDescriptionView.setText(item.getVendorDescription());
+                                    avgCost.setText("Cost for 2 : " + String.valueOf(item.getVendorAvgCost()));
+                                    ratingTextView.setText("Rating : " + String.valueOf(item.getVendorAvgRating()));
                                 }
                             }
                             else
@@ -127,10 +145,62 @@ public class VendorInfoActivity extends AppCompatActivity {
             @Override
             public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
                 rateUsTextView.setText("Thank you for Rating us!!");
+                if(CheckUserRating())
+                {}
             }
         });
     }
 
+    private boolean CheckUserRating() {
+        try {
+            mobileServiceClient =new MobileServiceClient(
+                    getString(R.string.azure_url),// Set up the login form.
+                    this);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        mRatingReviewTable = mobileServiceClient.getTable(RATING_AND_REVIEW.class);
+        @SuppressLint("StaticFieldLeak") AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
+            @Override
+            protected Void doInBackground(Void... params) {
+
+                try {
+                    final List<RATING_AND_REVIEW> results = runQuery3();
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(results != null)
+                            {
+                                for(RATING_AND_REVIEW item : results)
+                                {
+
+
+                                }
+                            }
+                            else
+                            {
+                                Toast.makeText(VendorInfoActivity.this, "Empty",Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                } catch (final Exception e){
+                    Log.d(TAG, "doInBackground: ERROR: " + e.toString());
+                    //createAndShowDialogFromTask(e, "Error");
+                }
+
+                return null;
+            }
+        };
+
+        runAsyncTask(task);
+        return false;
+    }
+
+    private List<RATING_AND_REVIEW> runQuery3() {
+        return null;
+    }
 
 
     private AsyncTask<Void, Void, Void> runAsyncTask(AsyncTask<Void, Void, Void> task) {
