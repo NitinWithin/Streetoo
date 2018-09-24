@@ -75,7 +75,7 @@ import static com.microsoft.windowsazure.mobileservices.table.query.QueryOperati
  */
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback,
-        GoogleApiClient.OnConnectionFailedListener{
+        GoogleApiClient.OnConnectionFailedListener {
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
@@ -87,14 +87,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Toast.makeText(this, "Map is Ready", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "onMapReady: map is ready");
         mMap = googleMap;
-        
+
         getDeviceLocation();
         fetchLiveVendors();
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-        {
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         mMap.setMyLocationEnabled(true);
@@ -128,8 +127,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        mSearchText =  findViewById(R.id.textinput);
-        mGps =  findViewById(R.id.ic_gps);
+        mSearchText = findViewById(R.id.textinput);
+        mGps = findViewById(R.id.ic_gps);
         mMarkerLegend = findViewById(R.id.markerLegend);
 
         //getLocationPermission();
@@ -137,7 +136,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
-    private void init(){
+    private void init() {
         Log.d(TAG, "init: initializing");
 
         mGoogleApiClient = new GoogleApiClient
@@ -157,10 +156,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mSearchText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
-                if(actionId == EditorInfo.IME_ACTION_SEARCH
+                if (actionId == EditorInfo.IME_ACTION_SEARCH
                         || actionId == EditorInfo.IME_ACTION_DONE
                         || keyEvent.getAction() == KeyEvent.ACTION_DOWN
-                        || keyEvent.getAction() == KeyEvent.KEYCODE_ENTER){
+                        || keyEvent.getAction() == KeyEvent.KEYCODE_ENTER) {
 
                     //execute our method for searching
                     geoLocate();
@@ -187,6 +186,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         hideSoftKeyboard();
     }
+
     private void initiatePopupWindow(View v) {
         try {
             //We need to get the instance of the LayoutInflater, use the context of this activity
@@ -205,20 +205,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    private void geoLocate(){
+    private void geoLocate() {
         Log.d(TAG, "geoLocate: geolocating");
 
         String searchString = mSearchText.getText().toString();
 
         Geocoder geocoder = new Geocoder(MapsActivity.this);
         List<Address> list = new ArrayList<>();
-        try{
+        try {
             list = geocoder.getFromLocationName(searchString, 1);
-        }catch (IOException e){
-            Log.e(TAG, "geoLocate: IOException: " + e.getMessage() );
+        } catch (IOException e) {
+            Log.e(TAG, "geoLocate: IOException: " + e.getMessage());
         }
 
-        if(list.size() > 0){
+        if (list.size() > 0) {
             Address address = list.get(0);
 
             Log.d(TAG, "geoLocate: found a location: " + address.toString());
@@ -229,14 +229,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    private void getDeviceLocation(){
+    @SuppressLint("MissingPermission")
+    private void getDeviceLocation() {
         Log.d(TAG, "getDeviceLocation: getting the devices current location");
 
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
-        try{
-
-            final Task location = mFusedLocationProviderClient.getLastLocation();
+        try {
+             final Task location = mFusedLocationProviderClient.getLastLocation();
             location.addOnCompleteListener(new OnCompleteListener() {
                 @Override
                 public void onComplete(@NonNull Task task) {
@@ -247,10 +247,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         Double temp2 = new Double(currentLocation.getLongitude());
                         if (temp == null || temp2 == null)
                         {
-
+                            Toast.makeText(MapsActivity.this,"NULL",Toast.LENGTH_SHORT).show();
                         }
                         else {
-                            moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
+                            moveCamera(new LatLng(temp, temp2),
                                     DEFAULT_ZOOM,
                                     "My Location");
                         }
@@ -260,8 +260,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         }
                     }
                 });
-        }catch (SecurityException e){
-            Log.e(TAG, "getDeviceLocation: SecurityException: " + e.getMessage() );
+        }catch (Exception e){
+            Log.e(TAG, "getDeviceLocation: Exception: " + e.getMessage() );
         }
 
     }
@@ -312,6 +312,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void initMap(){
         Log.d(TAG, "initMap: initializing map");
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 
         mapFragment.getMapAsync(MapsActivity.this);

@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ActionBarContainer;
 import android.support.v7.widget.Toolbar;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 
 import com.example.nitinwithin.streetoo.Tables.RATING_AND_REVIEW;
 import com.example.nitinwithin.streetoo.Tables.VENDOR;
+import com.example.nitinwithin.streetoo.recyclerview.RecyclerViewFragment;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
 
@@ -70,8 +72,18 @@ public class VendorInfoActivity extends AppCompatActivity {
         vendorDescriptionView = findViewById(R.id.vendorDescriptionView);
         avgCost = findViewById(R.id.avgView);
 
+        try {
+            mobileServiceClient =new MobileServiceClient(
+                    getString(R.string.azure_url),// Set up the login form.
+                    VendorInfoActivity.this);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+
         fetchVendorInfo();
         ratingBarChange();
+        onlineFoodOrder();
     }
 
     @Override
@@ -84,14 +96,6 @@ public class VendorInfoActivity extends AppCompatActivity {
 
     @SuppressLint("StaticFieldLeak")
     private void fetchVendorInfo() {
-
-        try {
-            mobileServiceClient =new MobileServiceClient(
-                    getString(R.string.azure_url),// Set up the login form.
-                    this);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
 
         mVendorTable = mobileServiceClient.getTable(VENDOR.class);
         AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
@@ -217,4 +221,10 @@ public class VendorInfoActivity extends AppCompatActivity {
                 .eq(val(vendorinfo))
                 .execute().get();
     }
+
+
+    private void onlineFoodOrder() {
+        startActivity(new Intent(VendorInfoActivity.this, OnlineOrderActivity.class));
+    }
+
 }
