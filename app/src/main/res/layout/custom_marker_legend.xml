@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="300px"
-    android:layout_height="470px"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@drawable/white_border"
     android:orientation="horizontal"
+    android:layout_margin="100dp"
     android:padding="10dp">
 
     <LinearLayout
@@ -51,10 +52,11 @@
 
     </LinearLayout>
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_gravity="center_vertical">
 
         <TextView
             android:id="@+id/info_dosa"
@@ -73,11 +75,9 @@
         <TextView
             android:id="@+id/infochat"
             android:layout_width="wrap_content"
-            android:layout_height="20dp"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
+            android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="48dp"
+            android:layout_marginTop="15dp"
             android:maxLines="1"
             android:text="chat"
             android:textColor="#000"
@@ -88,27 +88,22 @@
             android:id="@+id/infowindowtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="76dp"
+            android:layout_marginTop="10dp"
             android:maxLines="2"
             android:text="south indian"
-            android:textColor="#000"
             android:textAlignment="center"
+            android:textColor="#000"
             android:textSize="16sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/infowicecream"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentStart="true"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="63dp"
-            android:layout_weight="1"
             android:maxLines="1"
+            android:layout_marginTop="15dp"
             android:text="icecream"
             android:textColor="#000"
             android:textSize="16sp"
@@ -118,17 +113,15 @@
             android:id="@+id/infoother"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="23dp"
+            android:layout_marginTop="15dp"
             android:maxLines="1"
             android:text="other"
             android:textColor="#000"
             android:textSize="16sp"
             android:textStyle="bold" />
 
-    </RelativeLayout>
+    </LinearLayout>
 
 
 </LinearLayout>
