@@ -68,7 +68,8 @@
                 -->
             </intent-filter>
         </activity>
-        <activity android:name=".OnlineOrderActivity"></activity>
+        <activity android:name=".OnlineOrderActivity" />
+        <activity android:name=".WriteReviewActivity"></activity>
     </application>
 
 </manifest>

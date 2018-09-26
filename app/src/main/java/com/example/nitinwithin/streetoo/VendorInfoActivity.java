@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ActionBarContainer;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -49,14 +50,16 @@ public class VendorInfoActivity extends AppCompatActivity implements Serializabl
     private TextView statusTextView, ratingTextView, cuisineTextView, rateUsTextView, avgCost;
     private TextView vendorOwnerTextView, vendorContactTextView, vendorDescriptionView;
     private RatingBar vendorRatingbar;
-    private Button OnlineOrderButton;
+    private Button OnlineOrderButton, WriteReviewButton;
     private Toolbar toolbar;
+
 
     CollapsingToolbarLayout toolbarLayout;
     private String pathToAppFolder;
     private String filePath;
     private String userID;
     private String username;
+    private float ratingvalue;
 
 
     @SuppressLint("RestrictedApi")
@@ -82,11 +85,15 @@ public class VendorInfoActivity extends AppCompatActivity implements Serializabl
         rateUsTextView = findViewById(R.id.RatingtextView);
         vendorDescriptionView = findViewById(R.id.vendorDescriptionView);
         avgCost = findViewById(R.id.avgView);
-
+        WriteReviewButton = findViewById(R.id.ReviewButton);
 
         pathToAppFolder = getExternalFilesDir(null).getAbsolutePath();
-
         filePath = pathToAppFolder + "/review.txt";
+        toolbar.setFocusable(true);
+        toolbar.requestFocus();
+
+        statusTextView.setFocusable(true);
+        statusTextView.requestFocus();
 
         try {
             mobileServiceClient =new MobileServiceClient(
@@ -101,6 +108,7 @@ public class VendorInfoActivity extends AppCompatActivity implements Serializabl
         ratingBarChange();
         onlineFoodOrder();
         fetchReviewData();
+        writeReview();
     }
 
     @Override
@@ -166,7 +174,8 @@ public class VendorInfoActivity extends AppCompatActivity implements Serializabl
             @Override
             public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
                 rateUsTextView.setText("Thank you for Rating us!!");
-              CheckUserRating();
+              //CheckUserRating();
+                ratingvalue = vendorRatingbar.getRating();
             }
         });
     }
@@ -356,5 +365,21 @@ public class VendorInfoActivity extends AppCompatActivity implements Serializabl
             Log.d(TAG, "readUserInfo: " + e.getMessage());
         }
 
+    }
+
+    private void writeReview()
+    {
+        WriteReviewButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(VendorInfoActivity.this, WriteReviewActivity.class);
+                intent.putExtra("userID",userID);
+                intent.putExtra("username",username);
+                intent.putExtra("vendorid",vendorinfo);
+                intent.putExtra("rating",ratingvalue);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 }

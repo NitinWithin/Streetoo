@@ -28,7 +28,10 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/userReview"
         android:layout_alignStart="@+id/userReview"
-        android:text="Text" />
+        android:text="Text"
+        android:textStyle="bold"
+        android:textAllCaps="true"
+        android:textColor="#000000"/>
 
     <TextView
         android:id="@+id/userReview"
@@ -46,5 +49,15 @@
         android:layout_height="wrap_content"
         android:layout_alignEnd="@+id/userReview"
         android:layout_alignTop="@+id/userNameReview"
-        android:text="TextView" />
+        android:text="TextView"
+        android:textColor="#000000"
+        android:textStyle="bold"/>
+
+    <View
+        android:id="@+id/view2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/userReview"
+        android:background="@android:color/darker_gray" />
 </RelativeLayout>

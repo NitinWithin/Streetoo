@@ -99,6 +99,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setMyLocationEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(false);
 
+
         init();
     }
 
@@ -133,6 +134,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         //getLocationPermission();
         initMap();
+
+        mGps.setFocusable(true);
+        mGps.requestFocus();
 
     }
 
@@ -314,7 +318,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.d(TAG, "initMap: initializing map");
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-
         mapFragment.getMapAsync(MapsActivity.this);
     }
 
