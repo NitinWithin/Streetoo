@@ -488,22 +488,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 {
                                     if(item.getVendorCuisine().equalsIgnoreCase("chat"))
                                     {
-                                        Toast.makeText(MapsActivity.this,"chat",Toast.LENGTH_SHORT).show();
+                                        //Toast.makeText(MapsActivity.this,"chat",Toast.LENGTH_SHORT).show();
                                         marker123.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_chat));
                                     }
                                     else if(item.getVendorCuisine().equalsIgnoreCase("dosa"))
                                     {
-                                        Toast.makeText(MapsActivity.this,"dosa",Toast.LENGTH_SHORT).show();
+                                        //Toast.makeText(MapsActivity.this,"dosa",Toast.LENGTH_SHORT).show();
                                         marker123.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_dosa));
                                     }
                                     else if(item.getVendorCuisine().equalsIgnoreCase("southindian"))
                                     {
-                                        Toast.makeText(MapsActivity.this,"southindian",Toast.LENGTH_SHORT).show();
+                                        //Toast.makeText(MapsActivity.this,"southindian",Toast.LENGTH_SHORT).show();
                                         marker123.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_southindian));
                                     }
                                     else if(item.getVendorCuisine().equalsIgnoreCase("Ice Cream"))
                                     {
-                                        Toast.makeText(MapsActivity.this, "ICE CREAM", Toast.LENGTH_SHORT).show();
+                                        //Toast.makeText(MapsActivity.this, "ICE CREAM", Toast.LENGTH_SHORT).show();
                                         marker123.setIcon((BitmapDescriptorFactory.fromResource(R.mipmap.ic_marker_icecream)));
                                     }
                                     else

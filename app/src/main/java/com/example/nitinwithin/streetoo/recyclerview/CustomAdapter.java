@@ -22,7 +22,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.example.nitinwithin.streetoo.R;
+import com.example.nitinwithin.streetoo.Tables.RATING_AND_REVIEW;
+
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * Provide views to RecyclerView with data from mDataSet.
@@ -31,13 +37,20 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     private static final String TAG = "CustomAdapter";
 
     private String[] mDataSet;
+    private List<RATING_AND_REVIEW> ReviewItem;
+    private int i;
+
+    public CustomAdapter(List<RATING_AND_REVIEW> item) {
+       ReviewItem = item;
+
+    }
 
     // BEGIN_INCLUDE(recyclerViewSampleViewHolder)
     /**
      * Provide a reference to the type of views that you are using (custom ViewHolder)
      */
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        private final TextView textView;
+    public static class ViewHolder extends RecyclerView.ViewHolder implements Serializable{
+        private final TextView userName, userRating, userReview;
 
         public ViewHolder(View v) {
             super(v);
@@ -48,12 +61,14 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
                     Log.d(TAG, "Element " + getAdapterPosition() + " clicked.");
                 }
             });
-            textView = v.findViewById(R.id.textView);
+            //textView = v.findViewById(R.id.textView);
+
+            userName = v.findViewById(R.id.userNameReview);
+            userRating = v.findViewById(R.id.userRating);
+            userReview = v.findViewById(R.id.userReview);
         }
 
-        public TextView getTextView() {
-            return textView;
-        }
+
     }
     // END_INCLUDE(recyclerViewSampleViewHolder)
 
@@ -72,7 +87,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         // Create a new view.
         View v = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.text_row_item, viewGroup, false);
+                .inflate(R.layout.user_review_holder, viewGroup, false);
 
         return new ViewHolder(v);
     }
@@ -86,13 +101,22 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 
         // Get element from your dataset at this position and replace the contents of the view
         // with that element
-        viewHolder.getTextView().setText(mDataSet[position]);
+        //viewHolder.userReview.setText(mDataSet[position]);
+        try {
+            viewHolder.userReview.setText(ReviewItem.get(position).getReveiw());
+            viewHolder.userRating.setText(String.valueOf(ReviewItem.get(position).getRating()));
+            viewHolder.userName.setText(ReviewItem.get(position).getUserNameReview());
+        }
+        catch (Exception e)
+        {
+            Log.d(TAG, "onBindViewHolder: NULLPOINTEREXCEPTION: " + e.getMessage());
+        }
     }
     // END_INCLUDE(recyclerViewOnBindViewHolder)
 
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return mDataSet.length;
+        return ReviewItem.size();
     }
 }

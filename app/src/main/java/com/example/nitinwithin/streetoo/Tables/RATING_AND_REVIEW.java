@@ -2,10 +2,12 @@ package com.example.nitinwithin.streetoo.Tables;
 
 import com.microsoft.windowsazure.mobileservices.table.DateTimeOffset;
 
+import java.io.Serializable;
 import java.util.Date;
 
 
-public class RATING_AND_REVIEW {
+public class RATING_AND_REVIEW implements Serializable
+{
     
     @com.google.gson.annotations.SerializedName("id")
     private String rating_id;
@@ -19,6 +21,16 @@ public class RATING_AND_REVIEW {
     private String reveiw;
     @com.google.gson.annotations.SerializedName("createdAt")
     private Date createDate;
+    @com.google.gson.annotations.SerializedName("user_name")
+    private String userNameReview;
+
+    public String getUserNameReview() {
+        return userNameReview;
+    }
+
+    public void setUserNameReview(String userNameReview) {
+        this.userNameReview = userNameReview;
+    }
 
     public String getRating_id() {
         return rating_id;

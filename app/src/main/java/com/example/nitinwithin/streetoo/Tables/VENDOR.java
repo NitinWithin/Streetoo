@@ -1,8 +1,9 @@
 package com.example.nitinwithin.streetoo.Tables;
 
 
+import java.io.Serializable;
 
-public class VENDOR {
+public class VENDOR implements Serializable{
 
     @com.google.gson.annotations.SerializedName("id")
     private String vendorid;

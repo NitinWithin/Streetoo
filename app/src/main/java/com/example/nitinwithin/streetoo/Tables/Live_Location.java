@@ -1,6 +1,8 @@
 package com.example.nitinwithin.streetoo.Tables;
 
-public class Live_Location {
+import java.io.Serializable;
+
+public class Live_Location implements Serializable{
 
 
 

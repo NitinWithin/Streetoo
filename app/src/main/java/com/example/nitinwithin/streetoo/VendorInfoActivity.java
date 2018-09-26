@@ -18,18 +18,25 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.nitinwithin.streetoo.Tables.RATING_AND_REVIEW;
+import com.example.nitinwithin.streetoo.Tables.USER;
 import com.example.nitinwithin.streetoo.Tables.VENDOR;
 import com.example.nitinwithin.streetoo.recyclerview.RecyclerViewFragment;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static com.microsoft.windowsazure.mobileservices.table.query.QueryOperations.val;
 
-public class VendorInfoActivity extends AppCompatActivity {
+public class VendorInfoActivity extends AppCompatActivity implements Serializable{
 
     String vendorinfo;
     private MobileServiceTable<VENDOR> mVendorTable;
@@ -46,6 +53,10 @@ public class VendorInfoActivity extends AppCompatActivity {
     private Toolbar toolbar;
 
     CollapsingToolbarLayout toolbarLayout;
+    private String pathToAppFolder;
+    private String filePath;
+    private String userID;
+    private String username;
 
 
     @SuppressLint("RestrictedApi")
@@ -55,10 +66,10 @@ public class VendorInfoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_vendor_info);
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+
         Intent intent = getIntent();
         vendorinfo = intent.getStringExtra("vendorId");
-        Toast.makeText(VendorInfoActivity.this,"New Activity: " + vendorinfo, Toast.LENGTH_LONG).show();
 
         statusTextView = findViewById(R.id.textViewStatus);
         ratingTextView = findViewById(R.id.textViewRating);
@@ -72,6 +83,11 @@ public class VendorInfoActivity extends AppCompatActivity {
         vendorDescriptionView = findViewById(R.id.vendorDescriptionView);
         avgCost = findViewById(R.id.avgView);
 
+
+        pathToAppFolder = getExternalFilesDir(null).getAbsolutePath();
+
+        filePath = pathToAppFolder + "/review.txt";
+
         try {
             mobileServiceClient =new MobileServiceClient(
                     getString(R.string.azure_url),// Set up the login form.
@@ -80,10 +96,11 @@ public class VendorInfoActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-
         fetchVendorInfo();
+        readUserInfo();
         ratingBarChange();
         onlineFoodOrder();
+        fetchReviewData();
     }
 
     @Override
@@ -149,13 +166,13 @@ public class VendorInfoActivity extends AppCompatActivity {
             @Override
             public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
                 rateUsTextView.setText("Thank you for Rating us!!");
-                if(CheckUserRating())
-                {}
+              CheckUserRating();
             }
         });
     }
 
-    private boolean CheckUserRating() {
+    private void fetchReviewData()
+     {
         try {
             mobileServiceClient =new MobileServiceClient(
                     getString(R.string.azure_url),// Set up the login form.
@@ -177,10 +194,10 @@ public class VendorInfoActivity extends AppCompatActivity {
                         public void run() {
                             if(results != null)
                             {
-                                for(RATING_AND_REVIEW item : results)
-                                {
-
-
+                                try {
+                                    writeIntoFile(results);
+                                } catch (IOException e) {
+                                    e.printStackTrace();
                                 }
                             }
                             else
@@ -199,11 +216,14 @@ public class VendorInfoActivity extends AppCompatActivity {
         };
 
         runAsyncTask(task);
-        return false;
+
     }
 
-    private List<RATING_AND_REVIEW> runQuery3() {
-        return null;
+    private List<RATING_AND_REVIEW> runQuery3() throws ExecutionException, InterruptedException {
+        return mRatingReviewTable.where()
+                .field("vendor_id")
+                .eq(val(vendorinfo))
+                .execute().get();
     }
 
 
@@ -222,9 +242,119 @@ public class VendorInfoActivity extends AppCompatActivity {
                 .execute().get();
     }
 
+    private List<RATING_AND_REVIEW> runQuery2() throws ExecutionException, InterruptedException {
+        return mRatingReviewTable.where()
+                    .field("user_id")
+                    .eq(val(userID))
+                    .execute().get();
+    }
+
 
     private void onlineFoodOrder() {
         startActivity(new Intent(VendorInfoActivity.this, OnlineOrderActivity.class));
     }
 
+    private void CheckUserRating()
+    {
+        try {
+            mobileServiceClient = new MobileServiceClient(getString(R.string.azure_url),VendorInfoActivity.this );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        mRatingReviewTable = mobileServiceClient.getTable(RATING_AND_REVIEW.class);
+        @SuppressLint("StaticFieldLeak") AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
+            @Override
+            protected Void doInBackground(Void... params) {
+
+                try {
+                    final List<RATING_AND_REVIEW> results = runQuery2();
+
+                   runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(results.size() != 0)
+                            {
+                                RATING_AND_REVIEW rr = new RATING_AND_REVIEW();
+                                rr.setRating(vendorRatingbar.getRating());
+                                rr.setVendor_id(vendorinfo);
+                                rr.setUser_id(userID);
+                                rr.setRating_id(results.get(0).getRating_id());
+                                rr.setReveiw(results.get(0).getReveiw());
+                                rr.setUserNameReview(username);
+                                try {
+                                    mRatingReviewTable.update(rr).get();
+                                } catch (ExecutionException e) {
+                                    e.printStackTrace();
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                Log.d(TAG, "run: NULL Rating updated");
+                            }
+                            else
+                            {
+                                RATING_AND_REVIEW rr = new RATING_AND_REVIEW();
+                                rr.setRating(vendorRatingbar.getRating());
+                                rr.setVendor_id(vendorinfo);
+                                rr.setUser_id(userID);
+                                rr.setUserNameReview(username);
+                                try {
+                                    mRatingReviewTable.insert(rr).get();
+                                } catch (ExecutionException e) {
+                                    e.printStackTrace();
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                Log.d(TAG, "run: Rating updated");
+                            }
+                        }
+                    });
+                } catch (final Exception e){
+                    Log.d(TAG, "doInBackground: ERROR: " + e.toString());
+                    //createAndShowDialogFromTask(e, "Error");
+                }
+
+                return null;
+            }
+        };
+
+        runAsyncTask(task);
+        //return false;
+    }
+
+    private void writeIntoFile(List<RATING_AND_REVIEW> results) throws IOException {
+        FileOutputStream fileOutputStream = new FileOutputStream(filePath);
+        ObjectOutputStream objWriter = new ObjectOutputStream(fileOutputStream);
+        objWriter.writeObject(results);
+        objWriter.flush();
+        objWriter.close();
+        fileOutputStream.close();
+
+    }
+
+    private void readUserInfo()
+    {
+        try
+        {
+            FileInputStream userFileRead = new FileInputStream(String.valueOf(filePath));
+            Log.d(TAG, "writeUserInfo: FILE FOUND");
+            ObjectInputStream objReader = new ObjectInputStream(userFileRead);
+            List<USER> userObj = (List<USER>) objReader.readObject();
+
+            if(!(userObj == null))
+            {
+                userID = userObj.get(0).getUser_id();
+                username = userObj.get(0).getUser_name();
+            }
+            else
+            {
+                Toast.makeText(VendorInfoActivity.this,"EMPTY FILE",Toast.LENGTH_SHORT).show();
+            }
+
+        }
+        catch (Exception e)
+        {
+            Log.d(TAG, "readUserInfo: " + e.getMessage());
+        }
+
+    }
 }
